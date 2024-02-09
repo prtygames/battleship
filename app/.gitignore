@@ -2,7 +2,7 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-node_modules
+../node_modules
 
 # built files
 #/dist

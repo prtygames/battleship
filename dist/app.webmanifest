@@ -1,0 +1,8 @@
+{
+   "name": "Battleship",
+   "display": "minimal-ui",
+   "theme_color": "#415fcc",
+   "background_color": "#fff",
+   "orientation": "portrait",
+   "display": "standalone"
+}

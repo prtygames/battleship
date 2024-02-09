@@ -1,0 +1,18 @@
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+node_modules
+
+# built files
+#/dist
+
+# Log files
+npm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+
+/src2
+/src3

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import Peer from "peerjs";
+import Peer, { DataConnection } from "peerjs";
 import {
   CONNECTION__DISCONNECT_EVENT,
   CONNECTION__JOIN_EVENT,
@@ -25,14 +25,17 @@ export class Connection {
   ): Promise<Connection> {
     return new Promise((resolve) => {
       const connection = new Connection(eventEmitter);
-      connection.peer = new Peer();
+      connection.peer = new Peer({
+        pingInterval: 1000,
+      });
 
       connection.peer.on("open", (id) => {
         connection.peerId = id;
         resolve(connection);
       });
+      connection.peer.on("disconnected", () => connection.disconnect());
 
-      connection.peer.on("connection", (conn) => {
+      connection.peer.on("connection", (conn: DataConnection) => {
         connection.eventEmitter.on(
           CONNECTION__READY_EVENT,
           (event: ConnectionJoinEvent) => {
@@ -54,11 +57,12 @@ export class Connection {
             conn.send({ type: "shot_result", shot: event.shot });
           },
         );
-        conn.on("close", () => {
-          connection.eventEmitter.emit(CONNECTION__DISCONNECT_EVENT);
-
-          connection.close();
+        conn.on("iceStateChanged", (state: RTCIceConnectionState) => {
+          if (["closed", "disconnected", "failed"].includes(state)) {
+            connection.disconnect();
+          }
         });
+        conn.on("close", () => connection.disconnect());
 
         conn.on("data", (data: any) => {
           switch (data.type) {
@@ -100,6 +104,8 @@ export class Connection {
     return new Promise((resolve) => {
       const connection = new Connection(eventEmitter);
       connection.peer = new Peer();
+
+      connection.peer.on("disconnected", () => connection.disconnect());
 
       connection.peer.on("open", (id) => {
         connection.peerId = id;
@@ -155,11 +161,12 @@ export class Connection {
               break;
           }
         });
-        conn.on("close", () => {
-          connection.eventEmitter.emit(CONNECTION__DISCONNECT_EVENT);
-
-          connection.close();
+        conn.on("iceStateChanged", (state: RTCIceConnectionState) => {
+          if (["closed", "disconnected", "failed"].includes(state)) {
+            connection.disconnect();
+          }
         });
+        conn.on("close", () => connection.disconnect());
       });
     });
   }
@@ -170,5 +177,10 @@ export class Connection {
 
   close() {
     this.peer?.disconnect();
+  }
+
+  private disconnect() {
+    this.eventEmitter.emit(CONNECTION__DISCONNECT_EVENT);
+    this.close();
   }
 }

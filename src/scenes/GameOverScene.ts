@@ -17,14 +17,14 @@ export class GameOverScene extends Phaser.Scene {
   init(data: { win?: boolean }) {
     const isWinner = data?.win ?? false;
 
-    this.titleValue = isWinner ? "You WIN!" : "You lose :(";
+    this.titleValue = isWinner ? "You WIN! 😎" : "You lose 🙁";
   }
 
   create() {
     this.title = this.add.text(0, 0, this.titleValue, {
       color: "#415fcc",
       fontSize: Math.min(
-        Math.min(this.scale.width, this.scale.height) / 5,
+        Math.min(this.scale.width, this.scale.height) / 6,
         150,
       ),
       fontFamily: "Hiddencocktails",

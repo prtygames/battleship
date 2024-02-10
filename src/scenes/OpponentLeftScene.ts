@@ -13,7 +13,7 @@ export class OpponentLeftScene extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.title = this.add.text(0, 0, "Opponent left", {
+    this.title = this.add.text(0, 0, "Opponent left 🙁", {
       color: "#415fcc",
       fontSize: Math.min(
         Math.min(this.scale.width, this.scale.height) / 7,

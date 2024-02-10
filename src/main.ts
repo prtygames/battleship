@@ -112,7 +112,7 @@ async function start() {
 
   game.events.on(CONNECTION__DISCONNECT_EVENT, async () => {
     runScene(OpponentLeftScene.key);
-    await wait(3000);
+    await wait(5000);
 
     url.searchParams.delete("id");
 
@@ -187,7 +187,7 @@ async function start() {
     await wait(500);
 
     runScene(GameOverScene.key, { win: event.win });
-    await wait(3000);
+    await wait(5000);
 
     if (!isHost) {
       game.events.emit(CONNECTION__JOIN_EVENT);

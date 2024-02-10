@@ -4,6 +4,7 @@ import {
   EnemyBoard,
   PlayerBoard,
   Position,
+  ShipType,
   Shot,
 } from "./board.ts";
 
@@ -32,11 +33,14 @@ export class GameEngine implements GameEngineInterface {
 
   private state!: GameState;
 
-  constructor() {}
+  constructor(
+    private boardSize: number,
+    private shipTypes: ShipType[],
+  ) {}
 
   startGame(initialState: GameState): void {
-    this.heroBoard = Board.createHeroBoard();
-    this.enemyBoard = new Board();
+    this.heroBoard = Board.createHeroBoard(this.boardSize, this.shipTypes);
+    this.enemyBoard = new Board(this.boardSize, this.shipTypes);
 
     this.state = initialState;
   }

@@ -1,5 +1,3 @@
-const boardSize = 10;
-
 export type ShotResult = "hit" | "miss" | "sank" | "game-over";
 
 export type CellState = "empty" | "useless" | "ship" | "hit" | "miss";
@@ -9,7 +7,7 @@ export type Position = {
   y: number;
 };
 
-type ShipType = {
+export type ShipType = {
   decks: number;
   count: number;
 };
@@ -62,14 +60,17 @@ export class Board implements EnemyBoard, PlayerBoard {
 
   private unsunkShipCount = 0;
 
-  static createHeroBoard(): Board {
-    const board = new Board();
+  static createHeroBoard(size: number, shipTypes: ShipType[]): Board {
+    const board = new Board(size, shipTypes);
     board.placeShips();
 
     return board;
   }
 
-  constructor() {
+  constructor(
+    private size: number,
+    private shipTypes: ShipType[],
+  ) {
     this.init();
   }
 
@@ -131,9 +132,9 @@ export class Board implements EnemyBoard, PlayerBoard {
 
   private init() {
     this.cells = [];
-    for (let x = 0; x < boardSize; x++) {
+    for (let x = 0; x < this.size; x++) {
       const row: Cell[] = [];
-      for (let y = 0; y < boardSize; y++) {
+      for (let y = 0; y < this.size; y++) {
         row.push({ state: "empty", ship: null, position: { x, y } });
       }
 
@@ -142,16 +143,9 @@ export class Board implements EnemyBoard, PlayerBoard {
   }
 
   private placeShips() {
-    const shipTypes: ShipType[] = [
-      { decks: 4, count: 1 },
-      { decks: 3, count: 2 },
-      { decks: 2, count: 3 },
-      { decks: 1, count: 4 },
-    ];
-
     this.unsunkShipCount = 0;
 
-    for (const shipType of shipTypes) {
+    for (const shipType of this.shipTypes) {
       for (let i = 0; i < shipType.count; i++) {
         let placed = false;
 
@@ -159,8 +153,8 @@ export class Board implements EnemyBoard, PlayerBoard {
           const ship = new Ship(
             shipType.decks,
             {
-              x: Math.floor(Math.random() * boardSize),
-              y: Math.floor(Math.random() * boardSize),
+              x: Math.floor(Math.random() * this.size),
+              y: Math.floor(Math.random() * this.size),
             },
             Math.random() < 0.5 ? "horizontal" : "vertical",
           );
@@ -188,9 +182,9 @@ export class Board implements EnemyBoard, PlayerBoard {
   private canPlaceShip(ship: Ship): boolean {
     if (
       (ship.direction === "horizontal" &&
-        ship.position.x + ship.decks >= boardSize) ||
+        ship.position.x + ship.decks >= this.size) ||
       (ship.direction === "vertical" &&
-        ship.position.y + ship.decks >= boardSize)
+        ship.position.y + ship.decks >= this.size)
     ) {
       return false;
     }
@@ -209,14 +203,14 @@ export class Board implements EnemyBoard, PlayerBoard {
 
     const xMin = Math.max(0, ship.position.x - 1);
     const xMax = Math.min(
-      boardSize - 1,
+      this.size - 1,
       ship.direction === "horizontal"
         ? ship.position.x + ship.decks
         : ship.position.x + 1,
     );
     const yMin = Math.max(0, ship.position.y - 1);
     const yMax = Math.min(
-      boardSize - 1,
+      this.size - 1,
       ship.direction === "vertical"
         ? ship.position.y + ship.decks
         : ship.position.y + 1,

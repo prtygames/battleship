@@ -4,5 +4,9 @@ export default defineConfig({
   server: {
     host: true
   },
-  resolve: {}
+  resolve: {
+    alias: {
+      "simple-peer": "simple-peer/simplepeer.min.js",
+    },
+  }
 });

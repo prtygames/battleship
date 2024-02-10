@@ -10,13 +10,21 @@ export class InviteOpponentScene extends Phaser.Scene {
   private title!: Text;
   private qrcode: Image | undefined;
 
+  private joinUrl: string = "";
+
   constructor() {
     super(InviteOpponentScene.key);
   }
 
+  init(data: { joinUrl: string }) {
+    this.joinUrl = data.joinUrl;
+  }
+
   async preload() {
     if (!this.qrcode) {
-      QRCode.toDataURL("https://kiwitaxi.com", {
+      console.log(this.joinUrl);
+
+      QRCode.toDataURL(this.joinUrl, {
         type: "image/png",
         color: { dark: "#415fcc" },
         width: 250,
@@ -50,11 +58,13 @@ export class InviteOpponentScene extends Phaser.Scene {
 
   private resize() {
     if (this.scene.isVisible(InviteOpponentScene.key)) {
-      this.title.setFontSize(
-        Math.min(Math.min(this.scale.width, this.scale.height) / 4, 150),
-      );
-      this.title.setPosition(this.scale.width / 2, this.scale.height / 4);
-      this.title.setOrigin(0.5, 1);
+      if (this.title) {
+        this.title.setFontSize(
+          Math.min(Math.min(this.scale.width, this.scale.height) / 4, 150),
+        );
+        this.title.setPosition(this.scale.width / 2, this.scale.height / 4);
+        this.title.setOrigin(0.5, 1);
+      }
 
       if (this.qrcode) {
         this.qrcode.setPosition(this.scale.width / 2, this.scale.height / 4);

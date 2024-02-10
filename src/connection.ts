@@ -9,6 +9,7 @@ import {
   CONNECTION__READY_EVENT,
   CONNECTION__TAKE_SHOT_EVENT,
   CONNECTION__TAKE_SHOT_RESULT_EVENT,
+  ConnectionJoinEvent,
   ConnectionShotEvent,
   ConnectionShotResultEvent,
 } from "./events.ts";
@@ -32,9 +33,15 @@ export class Connection {
       });
 
       connection.peer.on("connection", (conn) => {
-        connection.eventEmitter.on(CONNECTION__READY_EVENT, () => {
-          conn.send({ type: "ready" });
-        });
+        connection.eventEmitter.on(
+          CONNECTION__READY_EVENT,
+          (event: ConnectionJoinEvent) => {
+            conn.send({
+              type: "ready",
+              isNeedToMakeShot: event.isNeedToMakeShot,
+            });
+          },
+        );
         connection.eventEmitter.on(
           CONNECTION__MAKE_SHOT_EVENT,
           (event: ConnectionShotEvent) => {
@@ -56,7 +63,10 @@ export class Connection {
         conn.on("data", (data: any) => {
           switch (data.type) {
             case "join":
-              connection.eventEmitter.emit(CONNECTION__JOIN_EVENT);
+              const joinEvent: ConnectionJoinEvent = {
+                isNeedToMakeShot: data.isNeedToMakeShot,
+              };
+              connection.eventEmitter.emit(CONNECTION__JOIN_EVENT, joinEvent);
               break;
             case "take_shot":
               const makeShotEvent: ConnectionShotEvent = {
@@ -95,7 +105,9 @@ export class Connection {
         connection.peerId = id;
 
         connection.eventEmitter.on(CONNECTION__JOIN_EVENT, () => {
-          conn.send({ type: "join" });
+          const isNeedToMakeShot = Math.random() >= 0.5;
+
+          conn.send({ type: "join", isNeedToMakeShot });
         });
         connection.eventEmitter.on(
           CONNECTION__MAKE_SHOT_EVENT,
@@ -117,7 +129,10 @@ export class Connection {
         conn.on("data", (data: any) => {
           switch (data.type) {
             case "ready":
-              connection.eventEmitter.emit(CONNECTION__READY_EVENT);
+              const readyEvent: ConnectionJoinEvent = {
+                isNeedToMakeShot: data.isNeedToMakeShot,
+              };
+              connection.eventEmitter.emit(CONNECTION__READY_EVENT, readyEvent);
               break;
             case "take_shot":
               const makeShotEvent: ConnectionShotEvent = {

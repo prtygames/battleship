@@ -1,8 +1,10 @@
 import { Shot } from "./engine/board.ts";
 
 export const CONNECTION__JOIN_EVENT = "connection__join";
-
 export const CONNECTION__READY_EVENT = "connection__ready";
+export type ConnectionJoinEvent = {
+  isNeedToMakeShot: boolean;
+};
 
 export const CONNECTION__MAKE_SHOT_EVENT = "connection__make_shot";
 export const CONNECTION__TAKE_SHOT_EVENT = "connection__take_shot";

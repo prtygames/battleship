@@ -20,6 +20,7 @@ import {
   GameMakeShotEvent,
   GameOverEvent,
   GameStartEvent,
+  ConnectionJoinEvent,
 } from "./events.ts";
 import { Connection } from "./connection.ts";
 import { OpponentLeftScene } from "./scenes/OpponentLeftScene.ts";
@@ -93,18 +94,24 @@ async function start() {
     joinUrl.searchParams.set("id", connection.getId());
     runScene(InviteOpponentScene.key, { joinUrl: joinUrl.toString() });
 
-    game.events.on(CONNECTION__JOIN_EVENT, () => {
-      const event: GameStartEvent = { isNeedToMakeShot: true };
-      game.events.emit(GAME__START_EVENT, event);
+    game.events.on(CONNECTION__JOIN_EVENT, (event: ConnectionJoinEvent) => {
+      const gameStartEvent: GameStartEvent = {
+        isNeedToMakeShot: event.isNeedToMakeShot,
+      };
+      game.events.emit(GAME__START_EVENT, gameStartEvent);
 
-      game.events.emit(CONNECTION__READY_EVENT);
+      game.events.emit(CONNECTION__READY_EVENT, {
+        isNeedToMakeShot: !event.isNeedToMakeShot,
+      });
     });
   } else {
     connection = await Connection.join(game.events, hostId);
 
-    game.events.on(CONNECTION__READY_EVENT, () => {
-      const event: GameStartEvent = { isNeedToMakeShot: false };
-      game.events.emit(GAME__START_EVENT, event);
+    game.events.on(CONNECTION__READY_EVENT, (event: ConnectionJoinEvent) => {
+      const gameStartEvent: GameStartEvent = {
+        isNeedToMakeShot: event.isNeedToMakeShot,
+      };
+      game.events.emit(GAME__START_EVENT, gameStartEvent);
     });
 
     game.events.emit(CONNECTION__JOIN_EVENT);

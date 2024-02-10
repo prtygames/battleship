@@ -63,9 +63,9 @@ export class GameEngine implements GameEngineInterface {
     }
 
     this.enemyBoard.applyShot(shot);
-    // if (shot.result === "miss") {
-    this.state = "enemy";
-    // }
+    if (shot.result === "miss") {
+      this.state = "enemy";
+    }
     if (shot.result === "game-over") {
       this.state = "game-over";
     }
@@ -77,9 +77,9 @@ export class GameEngine implements GameEngineInterface {
     }
 
     const shot = this.heroBoard.takeShot(position);
-    // if (shot.result === "miss") {
-    this.state = "hero";
-    // }
+    if (shot.result === "miss") {
+      this.state = "hero";
+    }
     if (shot.result === "game-over") {
       this.state = "game-over";
     }

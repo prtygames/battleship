@@ -37,6 +37,7 @@ export class InviteOpponentScene extends Phaser.Scene {
 
       this.textures.once("addtexture-qrcode", () => {
         this.qrcode = this.add.image(0, 0, "qrcode");
+
         if (navigator.share) {
           this.qrcode.on(GAMEOBJECT_POINTER_DOWN, async () => {
             try {
@@ -45,7 +46,9 @@ export class InviteOpponentScene extends Phaser.Scene {
                 text: "Let's go Play!",
                 url: this.joinUrl,
               });
-            } catch (ignore) {}
+            } catch (e) {
+              alert(e);
+            }
           });
 
           this.qrcode.setInteractive({

@@ -5,6 +5,7 @@ import Image = Phaser.GameObjects.Image;
 import debounce from "debounce";
 import GAMEOBJECT_POINTER_DOWN = Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN;
 import Rectangle = Phaser.Geom.Rectangle;
+import GAMEOBJECT_POINTER_UP = Phaser.Input.Events.GAMEOBJECT_POINTER_UP;
 
 export class InviteOpponentScene extends Phaser.Scene {
   static readonly key: string = "invite_opponent";
@@ -40,6 +41,11 @@ export class InviteOpponentScene extends Phaser.Scene {
 
         if (navigator.share) {
           this.qrcode.on(GAMEOBJECT_POINTER_DOWN, async () => {
+            this.qrcode!.setScale(
+              this.qrcode!.scaleX * 0.95,
+              this.qrcode!.scaleY * 0.95,
+            );
+            this.qrcode!.setTint(0xf5f8ff);
             try {
               await navigator.share({
                 title: "Battleship",
@@ -47,6 +53,13 @@ export class InviteOpponentScene extends Phaser.Scene {
                 url: this.joinUrl,
               });
             } catch (ignore) {}
+          });
+          this.qrcode.on(GAMEOBJECT_POINTER_UP, () => {
+            this.qrcode!.setScale(
+              this.qrcode!.scaleX * 1.05,
+              this.qrcode!.scaleY * 1.05,
+            );
+            this.qrcode!.setTint(0xffffff);
           });
 
           this.qrcode.setInteractive({

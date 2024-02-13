@@ -1,26 +1,25 @@
 import Phaser from "phaser";
 import { GameCell } from "./objects/GameCell.ts";
-import { LabelCell } from "./objects/LabelCell.ts";
 import { GameState } from "../engine/game.ts";
 import debounce from "debounce";
 import { Cell } from "../engine/board.ts";
 import { GAME__MAKE_SHOT_EVENT, GameMakeShotEvent } from "../events.ts";
+import Text = Phaser.GameObjects.Text;
+import TextStyle = Phaser.Types.GameObjects.Text.TextStyle;
 
 export class PlayScene extends Phaser.Scene {
   static readonly key: string = "play";
 
-  private minMargin: number = 15;
+  private minMargin: number = 25;
   private marginX: number = 0;
   private marginY: number = 0;
   private maxCellSize: number = 100;
   private cellSize: number = 0;
 
-  private playerXLabels: LabelCell[] = [];
-  private playerYLabels: LabelCell[] = [];
-  private enemyXLabels: LabelCell[] = [];
-  private enemyYLabels: LabelCell[] = [];
   private playerBoard: GameCell[][] = [];
   private enemyBoard: GameCell[][] = [];
+
+  private turnLabel!: Text;
 
   private state: GameState = "waiting";
 
@@ -29,34 +28,16 @@ export class PlayScene extends Phaser.Scene {
   }
 
   create() {
-    this.playerXLabels = [];
-    this.playerYLabels = [];
-    this.enemyXLabels = [];
-    this.enemyYLabels = [];
     this.playerBoard = [];
     this.enemyBoard = [];
 
-    for (let i = 0; i < this.boardSize; i++) {
-      const playerXLabel = new LabelCell(
-        this,
-        String.fromCharCode("A".charCodeAt(0) + i),
-      );
-      const playerYLabel = new LabelCell(this, String(i + 1));
-      playerXLabel.setActive(false);
-      playerYLabel.setActive(false);
-      this.playerXLabels.push(playerXLabel);
-      this.playerYLabels.push(playerYLabel);
+    const labelStyle: TextStyle = {
+      align: "center",
+      color: "#3a59cb",
+      fontFamily: "Hiddencocktails",
+    };
 
-      const enemyXLabel = new LabelCell(
-        this,
-        String.fromCharCode("A".charCodeAt(0) + i),
-      );
-      const enemyYLabel = new LabelCell(this, String(i + 1));
-      enemyXLabel.setActive(false);
-      enemyYLabel.setActive(false);
-      this.enemyXLabels.push(enemyXLabel);
-      this.enemyYLabels.push(enemyYLabel);
-    }
+    this.turnLabel = this.add.text(0, 0, "", labelStyle);
 
     this.scale.on(
       "resize",
@@ -107,44 +88,27 @@ export class PlayScene extends Phaser.Scene {
       }
     }
 
+    this.turnLabel.setText(isHeroBoardActive ? "Wait opponent" : "Your turn");
+
     this.playerBoard.forEach((row) =>
       row.forEach((item) => item.setActive(isHeroBoardActive)),
     );
-    this.playerXLabels.forEach((item) => item.setActive(isHeroBoardActive));
-    this.playerYLabels.forEach((item) => item.setActive(isHeroBoardActive));
 
     this.enemyBoard.forEach((row) =>
       row.forEach((item) => item.setActive(isEnemyBoardActive)),
     );
-    this.enemyXLabels.forEach((item) => item.setActive(isEnemyBoardActive));
-    this.enemyYLabels.forEach((item) => item.setActive(isEnemyBoardActive));
   }
 
   private updateBoards(): void {
-    for (let i = 0; i < this.boardSize; i++) {
-      this.playerXLabels[i].update(
-        {
-          x: this.marginX + this.cellSize * (1 + i),
-          y: this.marginY,
-        },
-        this.cellSize,
-      );
-      this.playerYLabels[i].update(
-        {
-          x: this.marginX,
-          y: this.marginY + +this.cellSize * (1 + i),
-        },
-        this.cellSize,
-      );
-    }
+    const turnLabelMargin = this.scale.isGamePortrait ? 0 : this.cellSize;
 
     for (let i = 0; i < this.boardSize; i++) {
       for (let j = 0; j < this.boardSize; j++) {
         const gameCell = this.playerBoard[i][j];
         gameCell.updatePosition(
           {
-            x: this.marginX + (i + 1) * this.cellSize,
-            y: this.marginY + (j + 1) * this.cellSize,
+            x: this.marginX + i * this.cellSize,
+            y: this.marginY + j * this.cellSize + turnLabelMargin,
           },
           this.cellSize,
         );
@@ -152,39 +116,36 @@ export class PlayScene extends Phaser.Scene {
     }
 
     let marginX: number = this.marginX;
-    let marginY: number = this.marginY;
+    let marginY: number = this.marginY + turnLabelMargin;
     if (this.scale.isGamePortrait) {
       marginY =
         this.marginY + this.minMargin + (this.boardSize + 1) * this.cellSize;
     } else {
       marginX =
-        this.marginX + this.minMargin + (this.boardSize + 1) * this.cellSize;
+        this.marginX +
+        this.minMargin +
+        (this.boardSize + 1 - 1) * this.cellSize;
     }
 
-    for (let i = 0; i < this.boardSize; i++) {
-      this.enemyXLabels[i].update(
-        {
-          x: marginX + this.cellSize * (1 + i),
-          y: marginY,
-        },
-        this.cellSize,
-      );
-      this.enemyYLabels[i].update(
-        {
-          x: marginX,
-          y: marginY + +this.cellSize * (1 + i),
-        },
-        this.cellSize,
-      );
-    }
+    this.turnLabel.setPosition(
+      this.marginX,
+      marginY - (this.minMargin / 2 + this.cellSize),
+    );
+    this.turnLabel.setFixedSize(
+      this.scale.isGamePortrait
+        ? this.cellSize * this.boardSize
+        : this.cellSize * this.boardSize * 2,
+      this.minMargin + this.cellSize,
+    );
+    this.turnLabel.setFontSize(Math.floor(this.cellSize * 0.95));
 
     for (let i = 0; i < this.boardSize; i++) {
       for (let j = 0; j < this.boardSize; j++) {
         const gameCell = this.enemyBoard[i][j];
         gameCell.updatePosition(
           {
-            x: marginX + (i + 1) * this.cellSize,
-            y: marginY + (j + 1) * this.cellSize,
+            x: marginX + (i + 1 - 1) * this.cellSize,
+            y: marginY + (j + 1 - 1) * this.cellSize,
           },
           this.cellSize,
         );
@@ -197,27 +158,26 @@ export class PlayScene extends Phaser.Scene {
     let y: number = 0;
 
     if (this.scale.isGamePortrait) {
-      x = (this.scale.width - 2 * this.minMargin) / (this.boardSize + 1);
-      y = (this.scale.height - 3 * this.minMargin) / ((this.boardSize + 1) * 2);
+      x = (this.scale.width - 2 * this.minMargin) / this.boardSize;
+      y = (this.scale.height - 3 * this.minMargin) / (this.boardSize * 2 + 1);
     } else {
-      x = (this.scale.width - 3 * this.minMargin) / ((this.boardSize + 1) * 2);
-      y = (this.scale.height - 2 * this.minMargin) / (this.boardSize + 1);
+      x = (this.scale.width - 3 * this.minMargin) / (this.boardSize * 2);
+      y = (this.scale.height - 3 * this.minMargin) / (this.boardSize + 1);
     }
 
     this.cellSize = Math.min(x, y, this.maxCellSize);
 
     if (this.scale.isGamePortrait) {
-      this.marginX =
-        (this.scale.width - (this.boardSize + 1) * this.cellSize) / 2;
+      this.marginX = (this.scale.width - this.boardSize * this.cellSize) / 2;
       this.marginY =
         (this.scale.height -
-          (this.boardSize + 1) * 2 * this.cellSize -
+          (this.boardSize * 2 + 1) * this.cellSize -
           this.minMargin) /
         2;
     } else {
       this.marginX =
         (this.scale.width -
-          (this.boardSize + 1) * 2 * this.cellSize -
+          this.boardSize * 2 * this.cellSize -
           this.minMargin) /
         2;
       this.marginY =

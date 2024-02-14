@@ -23,6 +23,8 @@ export class PlayScene extends Phaser.Scene {
 
   private state: GameState = "waiting";
 
+  private clickSound?: Phaser.Sound.BaseSound;
+
   constructor(private boardSize: number) {
     super(PlayScene.key);
   }
@@ -46,6 +48,12 @@ export class PlayScene extends Phaser.Scene {
         this.updateBoards();
       }, 200),
     );
+
+    this.load.audio("click", ["sounds/click.mp3", "sounds/click.ogg"]);
+    this.load.once("complete", () => {
+      this.clickSound = this.sound.add("click", { volume: 0.5 });
+    });
+    this.load.start();
   }
 
   initGame(playerBoard: Readonly<Cell[][]>) {
@@ -187,6 +195,10 @@ export class PlayScene extends Phaser.Scene {
 
   private heroShot(x: number, y: number): void {
     if (this.state === "hero") {
+      if (this.clickSound) {
+        this.clickSound.play();
+      }
+
       const event: GameMakeShotEvent = { x, y };
       this.game.events.emit(GAME__MAKE_SHOT_EVENT, event);
     }

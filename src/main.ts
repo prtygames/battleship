@@ -66,6 +66,9 @@ const game = new Phaser.Game({
   backgroundColor: "#fff",
 });
 
+let wins = 0;
+let losses = 0;
+
 function runScene(key: string, data?: object) {
   for (const activeScene of game.scene.getScenes()) {
     game.scene.stop(activeScene);
@@ -85,6 +88,9 @@ function wait(ms: number): Promise<void> {
 let connection: Connection | undefined;
 
 async function start() {
+  wins = 0;
+  losses = 0;
+
   if (isHost) {
     [connection] = await Promise.all([
       Connection.createHostConnection(game.events),
@@ -129,7 +135,7 @@ async function start() {
   });
 
   game.events.on(GAME__START_EVENT, (event: GameStartEvent) => {
-    runScene(PlayScene.key);
+    runScene(PlayScene.key, { win: wins, lose: losses });
 
     gameEngine.startGame(event.isNeedToMakeShot ? "hero" : "enemy");
 
@@ -162,6 +168,8 @@ async function start() {
       gameEngine.applyHeroShotResult(event.shot);
 
       if (event.shot.result === "game-over") {
+        wins += 1;
+
         const event: GameOverEvent = { win: true };
         game.events.emit(GAME__OVER_EVENT, event);
       }
@@ -180,6 +188,7 @@ async function start() {
       game.events.emit(CONNECTION__TAKE_SHOT_RESULT_EVENT, { shot: shot });
 
       if (shot.result === "game-over") {
+        losses += 1;
         const event: GameOverEvent = { win: false };
         game.events.emit(GAME__OVER_EVENT, event);
       }
@@ -195,7 +204,7 @@ async function start() {
   game.events.on(GAME__OVER_EVENT, async (event: GameOverEvent) => {
     await wait(500);
 
-    runScene(GameOverScene.key, { win: event.win });
+    runScene(GameOverScene.key, { win: event.win, wins, losses });
     await wait(3000);
 
     if (!isHost) {

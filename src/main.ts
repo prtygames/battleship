@@ -167,8 +167,10 @@ async function start() {
     (event: ConnectionShotResultEvent) => {
       gameEngine.applyHeroShotResult(event.shot);
 
-      if (event.shot.result === "sank") {
-        playScene.sank("enemy");
+      if (["sank", "hit", "game-over"].includes(event.shot.result)) {
+        playScene.playSound("hit");
+      } else {
+        playScene.playSound("miss");
       }
 
       if (event.shot.result === "game-over") {
@@ -191,14 +193,16 @@ async function start() {
     if (shot) {
       game.events.emit(CONNECTION__TAKE_SHOT_RESULT_EVENT, { shot: shot });
 
+      if (["sank", "hit", "game-over"].includes(shot.result)) {
+        playScene.playSound("hit");
+      } else {
+        playScene.playSound("miss");
+      }
+
       if (shot.result === "game-over") {
         losses += 1;
         const event: GameOverEvent = { win: false };
         game.events.emit(GAME__OVER_EVENT, event);
-      }
-
-      if (shot.result === "sank") {
-        playScene.sank("hero");
       }
 
       playScene.updateGameState(

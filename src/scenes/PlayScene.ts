@@ -24,8 +24,7 @@ export class PlayScene extends Phaser.Scene {
   private state: GameState = "waiting";
 
   private clickSound?: Phaser.Sound.BaseSound;
-  private heroSankSound?: Phaser.Sound.BaseSound;
-  private enemySankSound?: Phaser.Sound.BaseSound;
+  private hitSound?: Phaser.Sound.BaseSound;
 
   constructor(private boardSize: number) {
     super(PlayScene.key);
@@ -52,18 +51,10 @@ export class PlayScene extends Phaser.Scene {
     );
 
     this.load.audio("click", ["sounds/click.mp3", "sounds/click.ogg"]);
-    this.load.audio("hero-sank", [
-      "sounds/hero-sank.mp3",
-      "sounds/hero-sank.ogg",
-    ]);
-    this.load.audio("enemy-sank", [
-      "sounds/enemy-sank.mp3",
-      "sounds/enemy-sank.ogg",
-    ]);
+    this.load.audio("hit", ["sounds/hit.mp3", "sounds/hit.ogg"]);
     this.load.once("complete", () => {
-      this.clickSound = this.sound.add("click", { volume: 0 });
-      this.heroSankSound = this.sound.add("hero-sank", { volume: 0 });
-      this.enemySankSound = this.sound.add("enemy-sank", { volume: 0 });
+      this.clickSound = this.sound.add("click", { volume: 0.02 });
+      this.hitSound = this.sound.add("hit", { volume: 0.02 });
     });
     this.load.start();
 
@@ -93,13 +84,11 @@ export class PlayScene extends Phaser.Scene {
     this.updateBoards();
   }
 
-  sank(type: "hero" | "enemy") {
-    if (this.heroSankSound && this.enemySankSound) {
-      if (type === "hero") {
-        this.heroSankSound.play();
-      } else {
-        this.enemySankSound.play();
-      }
+  playSound(sound: "hit" | "miss") {
+    if (sound === "hit" && this.hitSound) {
+      this.hitSound.play();
+    } else if (sound === "miss" && this.clickSound) {
+      this.clickSound.play();
     }
   }
 
@@ -219,10 +208,6 @@ export class PlayScene extends Phaser.Scene {
 
   private heroShot(x: number, y: number): void {
     if (this.state === "hero") {
-      if (this.clickSound) {
-        this.clickSound.play();
-      }
-
       const event: GameMakeShotEvent = { x, y };
       this.game.events.emit(GAME__MAKE_SHOT_EVENT, event);
     }

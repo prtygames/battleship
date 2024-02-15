@@ -24,6 +24,8 @@ export class PlayScene extends Phaser.Scene {
   private state: GameState = "waiting";
 
   private clickSound?: Phaser.Sound.BaseSound;
+  private heroSankSound?: Phaser.Sound.BaseSound;
+  private enemySankSound?: Phaser.Sound.BaseSound;
 
   constructor(private boardSize: number) {
     super(PlayScene.key);
@@ -50,8 +52,18 @@ export class PlayScene extends Phaser.Scene {
     );
 
     this.load.audio("click", ["sounds/click.mp3", "sounds/click.ogg"]);
+    this.load.audio("hero-sank", [
+      "sounds/hero-sank.mp3",
+      "sounds/hero-sank.ogg",
+    ]);
+    this.load.audio("enemy-sank", [
+      "sounds/enemy-sank.mp3",
+      "sounds/enemy-sank.ogg",
+    ]);
     this.load.once("complete", () => {
       this.clickSound = this.sound.add("click", { volume: 0.5 });
+      this.heroSankSound = this.sound.add("hero-sank", { volume: 0.5 });
+      this.enemySankSound = this.sound.add("enemy-sank", { volume: 0.5 });
     });
     this.load.start();
   }
@@ -77,6 +89,16 @@ export class PlayScene extends Phaser.Scene {
 
     this.calculateSize();
     this.updateBoards();
+  }
+
+  sank(type: "hero" | "enemy") {
+    if (this.heroSankSound && this.enemySankSound) {
+      if (type === "hero") {
+        this.heroSankSound.play();
+      } else {
+        this.enemySankSound.play();
+      }
+    }
   }
 
   updateGameState(

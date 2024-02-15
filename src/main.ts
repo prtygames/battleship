@@ -167,6 +167,10 @@ async function start() {
     (event: ConnectionShotResultEvent) => {
       gameEngine.applyHeroShotResult(event.shot);
 
+      if (event.shot.result === "sank") {
+        playScene.sank("enemy");
+      }
+
       if (event.shot.result === "game-over") {
         wins += 1;
 
@@ -191,6 +195,10 @@ async function start() {
         losses += 1;
         const event: GameOverEvent = { win: false };
         game.events.emit(GAME__OVER_EVENT, event);
+      }
+
+      if (shot.result === "sank") {
+        playScene.sank("hero");
       }
 
       playScene.updateGameState(

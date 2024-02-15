@@ -61,9 +61,9 @@ export class PlayScene extends Phaser.Scene {
       "sounds/enemy-sank.ogg",
     ]);
     this.load.once("complete", () => {
-      this.clickSound = this.sound.add("click", { volume: 0.5 });
-      this.heroSankSound = this.sound.add("hero-sank", { volume: 0.5 });
-      this.enemySankSound = this.sound.add("enemy-sank", { volume: 0.5 });
+      this.clickSound = this.sound.add("click", { volume: 0.1 });
+      this.heroSankSound = this.sound.add("hero-sank", { volume: 0.1 });
+      this.enemySankSound = this.sound.add("enemy-sank", { volume: 0.1 });
     });
     this.load.start();
   }

@@ -193,11 +193,11 @@ async function start() {
     if (shot) {
       game.events.emit(CONNECTION__TAKE_SHOT_RESULT_EVENT, { shot: shot });
 
-      if (["sank", "hit", "game-over"].includes(shot.result)) {
-        playScene.playSound("hit");
-      } else {
-        playScene.playSound("miss");
-      }
+      // if (["sank", "hit", "game-over"].includes(shot.result)) {
+      //   playScene.playSound("hit");
+      // } else {
+      //   playScene.playSound("miss");
+      // }
 
       if (shot.result === "game-over") {
         losses += 1;

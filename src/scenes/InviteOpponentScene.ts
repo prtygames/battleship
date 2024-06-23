@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import Image = Phaser.GameObjects.Image;
 import debounce from "debounce";
 import Rectangle = Phaser.Geom.Rectangle;
+import GAMEOBJECT_POINTER_DOWN = Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN;
 
 export class InviteOpponentScene extends Phaser.Scene {
   static readonly key: string = "invite_opponent";
@@ -37,6 +38,35 @@ export class InviteOpponentScene extends Phaser.Scene {
       this.textures.once("addtexture-qrcode", () => {
         this.qrcode = this.add.image(0, 0, "qrcode");
 
+        if (navigator.share) {
+          this.qrcode.on(GAMEOBJECT_POINTER_DOWN, async () => {
+            this.qrcode!.setScale(
+              this.qrcode!.scaleX * 0.95,
+              this.qrcode!.scaleY * 0.95,
+            );
+            this.qrcode!.setTint(0xf5f8ff);
+            try {
+              await navigator.share({
+                title: "Battleship",
+                text: "Let's go Play!",
+                url: this.joinUrl,
+              });
+            } catch (ignore) {
+            } finally {
+              this.qrcode!.setScale(
+                this.qrcode!.scaleX * 1.05,
+                this.qrcode!.scaleY * 1.05,
+              );
+              this.qrcode!.setTint(0xffffff);
+            }
+          });
+
+          this.qrcode.setInteractive({
+            hitArea: new Phaser.Geom.Rectangle(0, 0, 0, 0),
+            hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+            useHandCursor: true,
+          });
+        }
         this.resize();
       });
     }
@@ -47,7 +77,7 @@ export class InviteOpponentScene extends Phaser.Scene {
       align: "center",
       color: "#415fcc",
       fontFamily: "Hiddencocktails",
-      padding: { bottom: 20 },
+      padding: { bottom: 10 },
     });
 
     this.scale.on(

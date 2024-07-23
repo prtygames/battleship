@@ -73,12 +73,14 @@ export class InviteOpponentScene extends Phaser.Scene {
   }
 
   create() {
-    this.title = this.add.text(0, 0, "Invite", {
-      align: "center",
-      color: "#415fcc",
-      fontFamily: "Hiddencocktails",
-      padding: { bottom: 10 },
-    });
+    this.title = this.add
+      .text(0, 0, "Invite", {
+        align: "center",
+        color: "#415fcc",
+        fontFamily: "Hiddencocktails",
+        padding: { bottom: 10 },
+      })
+      .setResolution(2);
 
     this.scale.on(
       "resize",

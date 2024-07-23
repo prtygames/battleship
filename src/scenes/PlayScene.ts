@@ -40,7 +40,7 @@ export class PlayScene extends Phaser.Scene {
       fontFamily: "Hiddencocktails",
     };
 
-    this.turnLabel = this.add.text(0, 0, "", labelStyle);
+    this.turnLabel = this.add.text(0, 0, "", labelStyle).setResolution(2);
 
     this.scale.on(
       "resize",

@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { GameCell } from "./objects/GameCell.ts";
 import { GameState } from "../engine/game.ts";
-import debounce from "debounce";
 import { Cell } from "../engine/board.ts";
 import { GAME__MAKE_SHOT_EVENT, GameMakeShotEvent } from "../events.ts";
 import Text = Phaser.GameObjects.Text;
@@ -40,21 +39,18 @@ export class PlayScene extends Phaser.Scene {
       fontFamily: "Hiddencocktails",
     };
 
-    this.turnLabel = this.add.text(0, 0, "", labelStyle).setResolution(2);
+    this.turnLabel = this.add.text(0, 0, "", labelStyle);
 
-    this.scale.on(
-      "resize",
-      debounce(() => {
-        this.calculateSize();
-        this.updateBoards();
-      }, 200),
-    );
+    this.scale.on("resize", () => {
+      this.calculateSize();
+      this.updateBoards();
+    });
 
     this.load.audio("click", ["sounds/click.mp3", "sounds/click.ogg"]);
     this.load.audio("hit", ["sounds/hit.mp3", "sounds/hit.ogg"]);
     this.load.once("complete", () => {
-      this.clickSound = this.sound.add("click", { volume: 0.02 });
-      this.hitSound = this.sound.add("hit", { volume: 0.02 });
+      this.clickSound = this.sound.add("click", { volume: 0.03 });
+      this.hitSound = this.sound.add("hit", { volume: 0.03 });
     });
     this.load.start();
 
@@ -109,7 +105,7 @@ export class PlayScene extends Phaser.Scene {
       }
     }
 
-    this.turnLabel.setText(isHeroBoardActive ? "Wait opponent" : "Your turn");
+    this.turnLabel.setText(isEnemyBoardActive ? "Your turn" : "Wait opponent");
 
     this.playerBoard.forEach((row) =>
       row.forEach((item) => item.setActive(isHeroBoardActive)),
@@ -140,23 +136,27 @@ export class PlayScene extends Phaser.Scene {
     let marginY: number = this.marginY + turnLabelMargin;
     if (this.scale.isGamePortrait) {
       marginY =
-        this.marginY + this.minMargin + (this.boardSize + 1) * this.cellSize;
+        this.marginY +
+        this.minMargin * window.devicePixelRatio +
+        (this.boardSize + 1) * this.cellSize;
     } else {
       marginX =
         this.marginX +
-        this.minMargin +
+        this.minMargin * window.devicePixelRatio +
         (this.boardSize + 1 - 1) * this.cellSize;
     }
 
     this.turnLabel.setPosition(
       this.marginX,
-      marginY - (this.minMargin / 1.5 + this.cellSize),
+      marginY -
+        ((this.minMargin / 1.5) * window.devicePixelRatio + this.cellSize),
     );
+
     this.turnLabel.setFixedSize(
       this.scale.isGamePortrait
         ? this.cellSize * this.boardSize
         : this.cellSize * this.boardSize * 2,
-      this.minMargin + this.cellSize,
+      this.minMargin * window.devicePixelRatio + this.cellSize,
     );
     this.turnLabel.setFontSize(this.cellSize);
 
@@ -179,27 +179,35 @@ export class PlayScene extends Phaser.Scene {
     let y: number = 0;
 
     if (this.scale.isGamePortrait) {
-      x = (this.scale.width - 2 * this.minMargin) / this.boardSize;
-      y = (this.scale.height - 3 * this.minMargin) / (this.boardSize * 2 + 1);
+      x =
+        (this.scale.width - 2 * this.minMargin * window.devicePixelRatio) /
+        this.boardSize;
+      y =
+        (this.scale.height - 3 * this.minMargin * window.devicePixelRatio) /
+        (this.boardSize * 2 + 1);
     } else {
-      x = (this.scale.width - 3 * this.minMargin) / (this.boardSize * 2);
-      y = (this.scale.height - 3 * this.minMargin) / (this.boardSize + 1);
+      x =
+        (this.scale.width - 3 * this.minMargin * window.devicePixelRatio) /
+        (this.boardSize * 2);
+      y =
+        (this.scale.height - 3 * this.minMargin * window.devicePixelRatio) /
+        (this.boardSize + 1);
     }
 
-    this.cellSize = Math.min(x, y, this.maxCellSize);
+    this.cellSize = Math.min(x, y, this.maxCellSize * window.devicePixelRatio);
 
     if (this.scale.isGamePortrait) {
       this.marginX = (this.scale.width - this.boardSize * this.cellSize) / 2;
       this.marginY =
         (this.scale.height -
           (this.boardSize * 2 + 1) * this.cellSize -
-          this.minMargin) /
+          this.minMargin * window.devicePixelRatio) /
         2;
     } else {
       this.marginX =
         (this.scale.width -
           this.boardSize * 2 * this.cellSize -
-          this.minMargin) /
+          this.minMargin * window.devicePixelRatio) /
         2;
       this.marginY =
         (this.scale.height - (this.boardSize + 1) * this.cellSize) / 2;

@@ -13,19 +13,33 @@ export class LoadingScene extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.text = this.add
-      .text(0, 0, "Loading...", {
-        color: "#415fcc",
-        fontSize: Math.min(
-          Math.min(this.scale.width, this.scale.height) / 5,
-          150,
-        ),
-        fontFamily: "Hiddencocktails",
-        align: "center",
-      })
-      .setResolution(2);
+    this.text = this.add.text(0, 0, "Loading...", {
+      color: "#415fcc",
+      fontFamily: "Hiddencocktails",
+      align: "center",
+    });
 
-    this.text.setPosition(this.scale.width / 2, this.scale.height / 2.3);
-    this.text.setOrigin(0.5, 0.5);
+    this.scale.on("resize", () => this.resize());
+
+    this.resize();
+  }
+
+  private resize() {
+    if (this.scene.isVisible(LoadingScene.key)) {
+      if (this.text) {
+        this.text
+          .setFontSize(
+            Math.min(
+              Math.min(this.scale.width, this.scale.height) /
+                5 /
+                window.devicePixelRatio,
+              150,
+            ),
+          )
+          .setOrigin(0.5, 0.5)
+          .setPosition(this.scale.width / 2, this.scale.height / 2.3)
+          .setScale(window.devicePixelRatio);
+      }
+    }
   }
 }

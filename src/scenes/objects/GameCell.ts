@@ -67,7 +67,7 @@ export class GameCell {
     }
     this.cell.fillRect(this.position.x, this.position.y, this.size, this.size);
 
-    this.cell.lineStyle(2, 0x3a59cb, alpha);
+    this.cell.lineStyle(2 * window.devicePixelRatio, 0x3a59cb, alpha);
     this.cell.strokeRect(
       this.position.x,
       this.position.y,

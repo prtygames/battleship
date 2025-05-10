@@ -6,7 +6,26 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "simple-peer": "simple-peer/simplepeer.min.js",
+      "simple-peer": "simple-peer/simplepeer.min.js"
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          phaser: ["phaser"]
+        }
+      }
     },
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        passes: 2
+      },
+      mangle: true,
+      format: {
+        comments: false
+      }
+    }
   }
 });

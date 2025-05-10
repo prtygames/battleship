@@ -12,11 +12,16 @@ import {
   ConnectionJoinEvent,
   ConnectionShotEvent,
   ConnectionShotResultEvent,
+  GAME__READY_EVENT,
+  GAME__SHIP_PLACEMENT_EVENT,
+  GAME__START_EVENT,
 } from "./events.ts";
 
 export class Connection {
   private peerId: string = "";
   private peer?: Peer;
+  private isHeroReady: boolean = false;
+  private isEnemyReady: boolean = false;
 
   private constructor(private eventEmitter: Phaser.Events.EventEmitter) {}
 
@@ -45,6 +50,19 @@ export class Connection {
             });
           },
         );
+        connection.eventEmitter.on(GAME__SHIP_PLACEMENT_EVENT, () => {
+          connection.isHeroReady = false;
+          connection.isEnemyReady = false;
+        });
+        connection.eventEmitter.on(GAME__READY_EVENT, () => {
+          setTimeout(() => {
+            connection.isHeroReady = true;
+            if (connection.isEnemyReady) {
+              connection.eventEmitter.emit(GAME__START_EVENT, {});
+            }
+            conn.send({ type: "game_ready" });
+          }, 1);
+        });
         connection.eventEmitter.on(
           CONNECTION__MAKE_SHOT_EVENT,
           (event: ConnectionShotEvent) => {
@@ -71,6 +89,12 @@ export class Connection {
                 isNeedToMakeShot: data.isNeedToMakeShot,
               };
               connection.eventEmitter.emit(CONNECTION__JOIN_EVENT, joinEvent);
+              break;
+            case "game_ready":
+              if (connection.isHeroReady) {
+                connection.eventEmitter.emit(GAME__START_EVENT, {});
+              }
+              connection.isEnemyReady = true;
               break;
             case "take_shot":
               const makeShotEvent: ConnectionShotEvent = {
@@ -115,6 +139,19 @@ export class Connection {
 
           conn.send({ type: "join", isNeedToMakeShot });
         });
+        connection.eventEmitter.on(GAME__SHIP_PLACEMENT_EVENT, () => {
+          connection.isHeroReady = false;
+          connection.isEnemyReady = false;
+        });
+        connection.eventEmitter.on(GAME__READY_EVENT, () => {
+          setTimeout(() => {
+            connection.isHeroReady = true;
+            if (connection.isEnemyReady) {
+              connection.eventEmitter.emit(GAME__START_EVENT, {});
+            }
+            conn.send({ type: "game_ready" });
+          }, 1);
+        });
         connection.eventEmitter.on(
           CONNECTION__MAKE_SHOT_EVENT,
           (event: ConnectionShotEvent) => {
@@ -139,6 +176,12 @@ export class Connection {
                 isNeedToMakeShot: data.isNeedToMakeShot,
               };
               connection.eventEmitter.emit(CONNECTION__READY_EVENT, readyEvent);
+              break;
+            case "game_ready":
+              if (connection.isHeroReady) {
+                connection.eventEmitter.emit(GAME__START_EVENT, {});
+              }
+              connection.isEnemyReady = true;
               break;
             case "take_shot":
               const makeShotEvent: ConnectionShotEvent = {

@@ -23,6 +23,21 @@ export type ConnectionShotResultEvent = {
 
 export const CONNECTION__DISCONNECT_EVENT = "connection__disconnect";
 
+export const GAME__SHIP_PLACEMENT_EVENT = "game__ship_placement";
+export type GameShipPlacementEvent = {
+  isNeedToMakeShot: boolean;
+};
+
+export const GAME__READY_EVENT = "game__ready";
+export type GameReadyEvent = {
+  //
+};
+
+export const OPPONENT__READY_EVENT = "opponent__ready";
+export type OpponentReadyEvent = {
+  //
+};
+
 export const GAME__START_EVENT = "game__start";
 export type GameStartEvent = {
   isNeedToMakeShot: boolean;

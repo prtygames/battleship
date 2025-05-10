@@ -19,11 +19,15 @@ import {
   GAME__START_EVENT,
   GameMakeShotEvent,
   GameOverEvent,
-  GameStartEvent,
   ConnectionJoinEvent,
+  GAME__SHIP_PLACEMENT_EVENT,
+  GameShipPlacementEvent,
+  GAME__READY_EVENT,
 } from "./events.ts";
 import { Connection } from "./connection.ts";
 import { OpponentLeftScene } from "./scenes/OpponentLeftScene.ts";
+import debounce from "debounce";
+import { ShipPlacementScene } from "./scenes/ShipPlacementScene.ts";
 
 const boardSize = 8;
 const shipTypes = [
@@ -41,6 +45,16 @@ const gameEngine: GameEngineInterface = new GameEngine(boardSize, shipTypes);
 const loadingScene = new LoadingScene();
 const inviteOpponentScene = new InviteOpponentScene();
 const opponentLeftScene = new OpponentLeftScene();
+const shipPlacementScene = new ShipPlacementScene(
+  boardSize,
+  (scene: ShipPlacementScene) => {
+    gameEngine.replaceHeroShips();
+    scene.setBoard(gameEngine.getHeroBoard());
+  },
+  () => {
+    game.events.emit(GAME__READY_EVENT, {});
+  },
+);
 const playScene = new PlayScene(boardSize);
 const gameOverScene = new GameOverScene();
 
@@ -52,19 +66,41 @@ const joinUrl = new URL(url.toString());
 
 const game = new Phaser.Game({
   scale: {
-    mode: Phaser.Scale.RESIZE,
+    mode: Phaser.Scale.NONE,
+    width: window.innerWidth * window.devicePixelRatio,
+    height: window.innerHeight * window.devicePixelRatio,
+    zoom: 1 / window.devicePixelRatio,
+    // mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     parent: "game",
   },
   scene: [
     loadingScene,
     inviteOpponentScene,
+    shipPlacementScene,
     playScene,
     gameOverScene,
     opponentLeftScene,
   ],
   backgroundColor: "#fff",
 });
+
+window.addEventListener(
+  "resize",
+  debounce(() => resize(), 50),
+);
+
+function resize() {
+  const w = window.innerWidth * window.devicePixelRatio;
+  const h = window.innerHeight * window.devicePixelRatio;
+
+  game.scale.resize(w, h);
+  for (const scene of game.scene.scenes) {
+    if (scene.scene.settings.active) {
+      scene.cameras.main.setViewport(0, 0, w, h);
+    }
+  }
+}
 
 let wins = 0;
 let losses = 0;
@@ -101,10 +137,10 @@ async function start() {
     runScene(InviteOpponentScene.key, { joinUrl: joinUrl.toString() });
 
     game.events.on(CONNECTION__JOIN_EVENT, (event: ConnectionJoinEvent) => {
-      const gameStartEvent: GameStartEvent = {
+      const gameShipPlacementEvent: GameShipPlacementEvent = {
         isNeedToMakeShot: event.isNeedToMakeShot,
       };
-      game.events.emit(GAME__START_EVENT, gameStartEvent);
+      game.events.emit(GAME__SHIP_PLACEMENT_EVENT, gameShipPlacementEvent);
 
       game.events.emit(CONNECTION__READY_EVENT, {
         isNeedToMakeShot: !event.isNeedToMakeShot,
@@ -114,10 +150,10 @@ async function start() {
     connection = await Connection.join(game.events, hostId);
 
     game.events.on(CONNECTION__READY_EVENT, (event: ConnectionJoinEvent) => {
-      const gameStartEvent: GameStartEvent = {
+      const gameShipPlacementEvent: GameShipPlacementEvent = {
         isNeedToMakeShot: event.isNeedToMakeShot,
       };
-      game.events.emit(GAME__START_EVENT, gameStartEvent);
+      game.events.emit(GAME__SHIP_PLACEMENT_EVENT, gameShipPlacementEvent);
     });
 
     game.events.emit(CONNECTION__JOIN_EVENT);
@@ -134,12 +170,32 @@ async function start() {
     window.location.href = url.toString();
   });
 
-  game.events.on(GAME__START_EVENT, (event: GameStartEvent) => {
+  game.events.on(
+    GAME__SHIP_PLACEMENT_EVENT,
+    (event: GameShipPlacementEvent) => {
+      gameEngine.initGame(event.isNeedToMakeShot ? "hero" : "enemy");
+      runScene(ShipPlacementScene.key);
+
+      shipPlacementScene.setBoard(gameEngine.getHeroBoard());
+    },
+  );
+
+  game.events.on(GAME__READY_EVENT, () => {
     runScene(PlayScene.key, { win: wins, lose: losses });
 
-    gameEngine.startGame(event.isNeedToMakeShot ? "hero" : "enemy");
-
     playScene.initGame(gameEngine.getHeroBoard());
+
+    playScene.updateGameState(
+      "waiting",
+      gameEngine.getHeroBoard(),
+      gameEngine.getEnemyBoard(),
+    );
+  });
+
+  game.events.on(GAME__START_EVENT, () => {
+    gameEngine.startGame();
+
+    console.log(gameEngine.getState());
 
     playScene.updateGameState(
       gameEngine.getState(),
@@ -193,11 +249,11 @@ async function start() {
     if (shot) {
       game.events.emit(CONNECTION__TAKE_SHOT_RESULT_EVENT, { shot: shot });
 
-      // if (["sank", "hit", "game-over"].includes(shot.result)) {
-      //   playScene.playSound("hit");
-      // } else {
-      //   playScene.playSound("miss");
-      // }
+      if (["sank", "hit", "game-over"].includes(shot.result)) {
+        playScene.playSound("hit");
+      } else {
+        playScene.playSound("miss");
+      }
 
       if (shot.result === "game-over") {
         losses += 1;

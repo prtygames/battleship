@@ -11,9 +11,15 @@ import {
 export type GameState = "waiting" | "hero" | "enemy" | "game-over";
 
 export interface GameEngineInterface {
-  startGame(initialState: GameState): void;
+  initGame(initialState: GameState): void;
+
+  startGame(): void;
 
   getState(): GameState;
+
+  setState(state: GameState): void;
+
+  replaceHeroShips(): void;
 
   getHeroBoard(): Readonly<Cell[][]>;
 
@@ -33,16 +39,26 @@ export class GameEngine implements GameEngineInterface {
 
   private state!: GameState;
 
+  private initialState!: GameState;
+
   constructor(
     private boardSize: number,
     private shipTypes: ShipType[],
   ) {}
 
-  startGame(initialState: GameState): void {
+  initGame(initialState: GameState): void {
     this.heroBoard = Board.createHeroBoard(this.boardSize, this.shipTypes);
     this.enemyBoard = new Board(this.boardSize, this.shipTypes);
 
-    this.state = initialState;
+    this.initialState = initialState;
+  }
+
+  startGame(): void {
+    this.state = this.initialState;
+  }
+
+  replaceHeroShips(): void {
+    this.heroBoard = Board.createHeroBoard(this.boardSize, this.shipTypes);
   }
 
   getHeroBoard(): Readonly<Cell[][]> {
@@ -55,6 +71,10 @@ export class GameEngine implements GameEngineInterface {
 
   getState(): GameState {
     return this.state;
+  }
+
+  setState(state: GameState): void {
+    this.state = state;
   }
 
   applyHeroShotResult(shot: Shot): void {

@@ -75,55 +75,60 @@ export class ShipPlacementScene extends Phaser.Scene {
   }
 
   resize() {
-    const fontSize = Math.min(
-      Math.min(this.scale.width, this.scale.height) / 5,
-      100 * window.devicePixelRatio,
-    );
+    if (this.scene.isVisible(ShipPlacementScene.key)) {
+      const fontSize = Math.min(
+        Math.min(this.scale.width, this.scale.height) / 5,
+        100 * window.devicePixelRatio,
+      );
 
-    this.top = Math.min(fontSize);
+      this.top = Math.min(fontSize);
 
-    this.calculateSize();
-    this.updateBoards();
+      this.calculateSize();
+      this.updateBoards();
 
-    if (this.title) {
-      this.title
-        .setFontSize(fontSize)
-        .setOrigin(0.5, 0.5)
-        .setPosition(this.scale.width / 2, fontSize * 0.5);
-    }
-
-    if (this.replacementTitle) {
-      const replacementTitleTop =
-        this.marginY + this.top + this.boardSize * this.cellSize;
-
-      this.replacementTitle
-        .setFontSize(fontSize * 0.8)
-        .setOrigin(0.5, 0.5)
-        .setPosition(
-          this.scale.width / 2,
-          replacementTitleTop + fontSize * 0.4,
-        );
-
-      if (this.replacementTitle.input?.hitArea) {
-        const area = this.replacementTitle.input?.hitArea as Rectangle;
-        const bounds = this.replacementTitle.getBounds();
-        area.setTo(0, 0, bounds.width, bounds.height);
+      if (this.title) {
+        this.title
+          .setFontSize(fontSize)
+          .setOrigin(0.5, 0.5)
+          .setPosition(this.scale.width / 2, fontSize * 0.5);
       }
-    }
 
-    if (this.startGameTitle) {
-      const startGameTitleTop =
-        this.marginY + this.top + this.boardSize * this.cellSize;
+      if (this.replacementTitle) {
+        const replacementTitleTop =
+          this.marginY + this.top + this.boardSize * this.cellSize;
 
-      this.startGameTitle
-        .setFontSize(fontSize * 0.8)
-        .setOrigin(0.5, 0.5)
-        .setPosition(this.scale.width / 2, startGameTitleTop + fontSize * 1.25);
+        this.replacementTitle
+          .setFontSize(fontSize * 0.8)
+          .setOrigin(0.5, 0.5)
+          .setPosition(
+            this.scale.width / 2,
+            replacementTitleTop + fontSize * 0.4,
+          );
 
-      if (this.startGameTitle.input?.hitArea) {
-        const area = this.startGameTitle.input?.hitArea as Rectangle;
-        const bounds = this.startGameTitle.getBounds();
-        area.setTo(0, 0, bounds.width, bounds.height);
+        if (this.replacementTitle.input?.hitArea) {
+          const area = this.replacementTitle.input?.hitArea as Rectangle;
+          const bounds = this.replacementTitle.getBounds();
+          area.setTo(0, 0, bounds.width, bounds.height);
+        }
+      }
+
+      if (this.startGameTitle) {
+        const startGameTitleTop =
+          this.marginY + this.top + this.boardSize * this.cellSize;
+
+        this.startGameTitle
+          .setFontSize(fontSize * 0.8)
+          .setOrigin(0.5, 0.5)
+          .setPosition(
+            this.scale.width / 2,
+            startGameTitleTop + fontSize * 1.25,
+          );
+
+        if (this.startGameTitle.input?.hitArea) {
+          const area = this.startGameTitle.input?.hitArea as Rectangle;
+          const bounds = this.startGameTitle.getBounds();
+          area.setTo(0, 0, bounds.width, bounds.height);
+        }
       }
     }
   }

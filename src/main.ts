@@ -159,10 +159,11 @@ async function start() {
   }
 
   game.events.on(CONNECTION__DISCONNECT_EVENT, async () => {
-    if (playScene.scene.isActive()) {
+    if (playScene.scene.isActive() || shipPlacementScene.scene.isActive()) {
       runScene(OpponentLeftScene.key);
-      await wait(3000);
     }
+
+    await wait(3000);
 
     url.searchParams.delete("id");
 

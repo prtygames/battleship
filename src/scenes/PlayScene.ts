@@ -63,12 +63,18 @@ export class PlayScene extends Phaser.Scene {
       const enemyRow: GameCell[] = [];
       for (let j = 0; j < this.boardSize; j++) {
         const playerCell = new GameCell(this);
-        playerCell.setState(playerBoard[i][j].state);
+        playerCell.setState(
+          playerBoard[i][j].state,
+          playerBoard?.[i]?.[j - 1]?.state ?? "empty",
+          playerBoard?.[i]?.[j + 1]?.state ?? "empty",
+          playerBoard?.[i - 1]?.[j]?.state ?? "empty",
+          playerBoard?.[i + 1]?.[j]?.state ?? "empty",
+        );
         playerCell.setActive(false);
         playerRow.push(playerCell);
 
         const enemyCell = new GameCell(this, () => this.heroShot(i, j));
-        enemyCell.setState("empty");
+        enemyCell.setState("empty", "empty", "empty", "empty", "empty");
         enemyCell.setActive(false);
         enemyRow.push(enemyCell);
       }
@@ -100,8 +106,20 @@ export class PlayScene extends Phaser.Scene {
 
     for (let i = 0; i < this.boardSize; i++) {
       for (let j = 0; j < this.boardSize; j++) {
-        this.playerBoard[i][j].setState(playerBoard[i][j].state);
-        this.enemyBoard[i][j].setState(enemyBoard[i][j].state);
+        this.playerBoard[i][j].setState(
+          playerBoard[i][j].state,
+          playerBoard?.[i]?.[j - 1]?.state ?? "empty",
+          playerBoard?.[i]?.[j + 1]?.state ?? "empty",
+          playerBoard?.[i - 1]?.[j]?.state ?? "empty",
+          playerBoard?.[i + 1]?.[j]?.state ?? "empty",
+        );
+        this.enemyBoard[i][j].setState(
+          enemyBoard[i][j].state,
+          enemyBoard?.[i]?.[j - 1]?.state ?? "empty",
+          enemyBoard?.[i]?.[j + 1]?.state ?? "empty",
+          enemyBoard?.[i - 1]?.[j]?.state ?? "empty",
+          enemyBoard?.[i + 1]?.[j]?.state ?? "empty",
+        );
       }
     }
 

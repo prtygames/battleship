@@ -134,7 +134,13 @@ export class ShipPlacementScene extends Phaser.Scene {
       const playerRow: GameCell[] = [];
       for (let j = 0; j < this.boardSize; j++) {
         const playerCell = new GameCell(this);
-        playerCell.setState(board[i][j].state);
+        playerCell.setState(
+          board[i][j].state,
+          board?.[i]?.[j - 1]?.state ?? "empty",
+          board?.[i]?.[j + 1]?.state ?? "empty",
+          board?.[i - 1]?.[j]?.state ?? "empty",
+          board?.[i + 1]?.[j]?.state ?? "empty",
+        );
         playerCell.setActive(true);
         playerRow.push(playerCell);
       }

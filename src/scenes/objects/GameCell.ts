@@ -10,6 +10,10 @@ export class GameCell {
   private state: CellState = "empty";
 
   private cell: Graphics;
+  private topState: CellState = "empty";
+  private bottomState: CellState = "empty";
+  private leftState: CellState = "empty";
+  private rightState: CellState = "empty";
 
   constructor(
     private scene: Scene,
@@ -35,8 +39,18 @@ export class GameCell {
     this.updateCell();
   }
 
-  setState(state: CellState): void {
+  setState(
+    state: CellState,
+    topState: CellState,
+    bottomState: CellState,
+    leftState: CellState,
+    rightState: CellState,
+  ): void {
     this.state = state;
+    this.topState = topState;
+    this.bottomState = bottomState;
+    this.leftState = leftState;
+    this.rightState = rightState;
   }
 
   updateState(state: CellState): void {
@@ -68,12 +82,58 @@ export class GameCell {
     this.cell.fillRect(this.position.x, this.position.y, this.size, this.size);
 
     this.cell.lineStyle(2 * window.devicePixelRatio, 0x3a59cb, alpha);
-    this.cell.strokeRect(
-      this.position.x,
-      this.position.y,
-      this.size,
-      this.size,
-    );
+    if (
+      !(
+        ["ship", "hit"].includes(this.state) &&
+        ["ship", "hit"].includes(this.topState)
+      )
+    ) {
+      this.cell.lineBetween(
+        this.position.x,
+        this.position.y,
+        this.position.x + this.size,
+        this.position.y,
+      );
+    }
+    if (
+      !(
+        ["ship", "hit"].includes(this.state) &&
+        ["ship", "hit"].includes(this.bottomState)
+      )
+    ) {
+      this.cell.lineBetween(
+        this.position.x,
+        this.position.y + this.size,
+        this.position.x + this.size,
+        this.position.y + this.size,
+      );
+    }
+    if (
+      !(
+        ["ship", "hit"].includes(this.state) &&
+        ["ship", "hit"].includes(this.leftState)
+      )
+    ) {
+      this.cell.lineBetween(
+        this.position.x,
+        this.position.y,
+        this.position.x,
+        this.position.y + this.size,
+      );
+    }
+    if (
+      !(
+        ["ship", "hit"].includes(this.state) &&
+        ["ship", "hit"].includes(this.rightState)
+      )
+    ) {
+      this.cell.lineBetween(
+        this.position.x + this.size,
+        this.position.y,
+        this.position.x + this.size,
+        this.position.y + this.size,
+      );
+    }
 
     if (this.state === "miss") {
       this.cell.fillStyle(0x3a59cb, alpha);

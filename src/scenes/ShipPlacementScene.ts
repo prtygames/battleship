@@ -76,13 +76,11 @@ export class ShipPlacementScene extends Phaser.Scene {
 
   resize() {
     const fontSize = Math.min(
-      Math.min(this.scale.width, this.scale.height) /
-        5 /
-        window.devicePixelRatio,
-      150,
+      Math.min(this.scale.width, this.scale.height) / 5,
+      100 * window.devicePixelRatio,
     );
 
-    this.top = Math.min(fontSize * 4);
+    this.top = Math.min(fontSize);
 
     this.calculateSize();
     this.updateBoards();
@@ -91,29 +89,25 @@ export class ShipPlacementScene extends Phaser.Scene {
       this.title
         .setFontSize(fontSize)
         .setOrigin(0.5, 0.5)
-        .setPosition(this.scale.width / 2, fontSize * 2.5)
-        .setScale(window.devicePixelRatio);
+        .setPosition(this.scale.width / 2, fontSize * 0.5);
     }
 
     if (this.replacementTitle) {
-      const startGameTitleTop =
+      const replacementTitleTop =
         this.marginY + this.top + this.boardSize * this.cellSize;
 
       this.replacementTitle
-        .setFontSize(fontSize)
-        .setOrigin(0.5, 0)
-        .setPosition(this.scale.width / 2, startGameTitleTop + fontSize * 0.5)
-        .setScale(window.devicePixelRatio);
+        .setFontSize(fontSize * 0.8)
+        .setOrigin(0.5, 0.5)
+        .setPosition(
+          this.scale.width / 2,
+          replacementTitleTop + fontSize * 0.4,
+        );
 
       if (this.replacementTitle.input?.hitArea) {
         const area = this.replacementTitle.input?.hitArea as Rectangle;
         const bounds = this.replacementTitle.getBounds();
-        area.setTo(
-          0,
-          0,
-          bounds.width / window.devicePixelRatio,
-          bounds.height / window.devicePixelRatio,
-        );
+        area.setTo(0, 0, bounds.width, bounds.height);
       }
     }
 
@@ -123,19 +117,13 @@ export class ShipPlacementScene extends Phaser.Scene {
 
       this.startGameTitle
         .setFontSize(fontSize * 0.8)
-        .setOrigin(0.5, 0)
-        .setPosition(this.scale.width / 2, startGameTitleTop + fontSize * 3.5)
-        .setScale(window.devicePixelRatio);
+        .setOrigin(0.5, 0.5)
+        .setPosition(this.scale.width / 2, startGameTitleTop + fontSize * 1.25);
 
       if (this.startGameTitle.input?.hitArea) {
         const area = this.startGameTitle.input?.hitArea as Rectangle;
         const bounds = this.startGameTitle.getBounds();
-        area.setTo(
-          0,
-          0,
-          bounds.width / window.devicePixelRatio,
-          bounds.height / window.devicePixelRatio,
-        );
+        area.setTo(0, 0, bounds.width, bounds.height);
       }
     }
   }

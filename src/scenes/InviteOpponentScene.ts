@@ -5,6 +5,8 @@ import Image = Phaser.GameObjects.Image;
 import Rectangle = Phaser.Geom.Rectangle;
 import GAMEOBJECT_POINTER_DOWN = Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN;
 
+const qrCodeSize: number = 250;
+
 export class InviteOpponentScene extends Phaser.Scene {
   static readonly key: string = "invite_opponent";
 
@@ -28,14 +30,16 @@ export class InviteOpponentScene extends Phaser.Scene {
       QRCode.toDataURL(this.joinUrl, {
         type: "image/png",
         color: { dark: "#415fcc" },
-        width: 250,
+        width: qrCodeSize,
         margin: 1,
       }).then((qrcode) => {
         this.textures.addBase64("qrcode", qrcode);
       });
 
       this.textures.once("addtexture-qrcode", () => {
-        this.qrcode = this.add.image(0, 0, "qrcode").setSize(250, 250);
+        this.qrcode = this.add
+          .image(0, 0, "qrcode")
+          .setSize(qrCodeSize, qrCodeSize);
 
         if (navigator.share) {
           this.qrcode.on(GAMEOBJECT_POINTER_DOWN, async () => {
@@ -77,7 +81,6 @@ export class InviteOpponentScene extends Phaser.Scene {
       align: "center",
       color: "#415fcc",
       fontFamily: "Hiddencocktails",
-      padding: { bottom: 10 * window.devicePixelRatio },
     });
 
     this.scale.on("resize", () => this.resize());
@@ -87,29 +90,32 @@ export class InviteOpponentScene extends Phaser.Scene {
 
   private resize() {
     if (this.scene.isVisible(InviteOpponentScene.key)) {
+      const titleFontSize = Math.min(
+        Math.min(this.scale.width, this.scale.height) / 5,
+        100 * window.devicePixelRatio,
+      );
+
       if (this.title) {
         this.title
-          .setFontSize(
-            Math.min(
-              Math.min(this.scale.width, this.scale.height) /
-                4 /
-                window.devicePixelRatio,
-              150,
-            ),
-          )
-          .setOrigin(0.5, 1)
-          .setPosition(this.scale.width / 2, this.scale.height / 4)
-          .setScale(window.devicePixelRatio);
+          .setFontSize(titleFontSize)
+          .setOrigin(0.5, 0)
+          .setPosition(
+            this.scale.width / 2,
+            this.scale.height / 5 - titleFontSize,
+          );
       }
 
       if (this.qrcode) {
-        const scale =
-          (Math.min(this.scale.width, (3 * this.scale.height) / 4) / 250) * 0.7;
+        const size = 0.75 * Math.min(this.scale.width, this.scale.height * 0.7);
+        const scale = size / qrCodeSize;
 
         this.qrcode
-          .setPosition(this.scale.width / 2, this.scale.height / 4)
+          .setPosition(
+            this.scale.width / 2,
+            this.scale.height / 5 + 25 * window.devicePixelRatio,
+          )
           .setOrigin(0.5, 0)
-          .setScale(scale, scale);
+          .setScale(scale);
 
         if (this.qrcode.input?.hitArea) {
           const area = this.qrcode.input?.hitArea as Rectangle;

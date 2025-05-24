@@ -13,7 +13,7 @@ export class OpponentLeftScene extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.title = this.add.text(0, 0, "Opponent left 🙁", {
+    this.title = this.add.text(0, 0, "Opponent left \n 🙁", {
       color: "#415fcc",
       fontFamily: "Hiddencocktails",
       align: "center",
@@ -27,18 +27,18 @@ export class OpponentLeftScene extends Phaser.Scene {
   private resize() {
     if (this.scene.isVisible(OpponentLeftScene.key)) {
       if (this.title) {
+        const fontSize = Math.min(
+          Math.min(this.scale.width, this.scale.height) / 7,
+          100 * window.devicePixelRatio,
+        );
+
         this.title
-          .setFontSize(
-            Math.min(
-              Math.min(this.scale.width, this.scale.height) /
-                7.5 /
-                window.devicePixelRatio,
-              150,
-            ),
-          )
+          .setFontSize(fontSize)
           .setOrigin(0.5, 0.5)
-          .setPosition(this.scale.width / 2, this.scale.height / 2.3)
-          .setScale(window.devicePixelRatio);
+          .setPosition(
+            this.scale.width / 2,
+            this.scale.height / 2 - fontSize / 2,
+          );
       }
     }
   }

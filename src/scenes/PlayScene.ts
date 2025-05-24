@@ -146,17 +146,18 @@ export class PlayScene extends Phaser.Scene {
         (this.boardSize + 1 - 1) * this.cellSize;
     }
 
-    this.turnLabel.setPosition(
-      this.marginX,
-      marginY -
-        ((this.minMargin / 1.5) * window.devicePixelRatio + this.cellSize),
-    );
+    this.turnLabel
+      .setPosition(
+        this.scale.width / 2,
+        marginY - this.cellSize * 0.75, //- (this.minMargin / 1.5 + this.cellSize),
+      )
+      .setOrigin(0.5, 0.5);
 
     this.turnLabel.setFixedSize(
       this.scale.isGamePortrait
         ? this.cellSize * this.boardSize
         : this.cellSize * this.boardSize * 2,
-      this.minMargin * window.devicePixelRatio + this.cellSize,
+      this.minMargin + this.cellSize,
     );
     this.turnLabel.setFontSize(this.cellSize);
 

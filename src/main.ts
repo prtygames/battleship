@@ -70,7 +70,6 @@ const game = new Phaser.Game({
     width: window.innerWidth * window.devicePixelRatio,
     height: window.innerHeight * window.devicePixelRatio,
     zoom: 1 / window.devicePixelRatio,
-    // mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     parent: "game",
   },
@@ -181,7 +180,7 @@ async function start() {
   );
 
   game.events.on(GAME__READY_EVENT, () => {
-    runScene(PlayScene.key, { win: wins, lose: losses });
+    runScene(PlayScene.key);
 
     playScene.initGame(gameEngine.getHeroBoard());
 
@@ -194,8 +193,6 @@ async function start() {
 
   game.events.on(GAME__START_EVENT, () => {
     gameEngine.startGame();
-
-    console.log(gameEngine.getState());
 
     playScene.updateGameState(
       gameEngine.getState(),

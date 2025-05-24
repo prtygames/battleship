@@ -46,34 +46,31 @@ export class GameOverScene extends Phaser.Scene {
 
   private resize() {
     if (this.scene.isVisible(GameOverScene.key)) {
+      const titleFontSize = Math.min(
+        Math.min(this.scale.width, this.scale.height) / 6,
+        100 * window.devicePixelRatio,
+      );
+
+      const scoreFontSize = Math.min(
+        Math.min(this.scale.width, this.scale.height) / 2,
+        140 * window.devicePixelRatio,
+      );
+
       if (this.title) {
         this.title
-          .setFontSize(
-            Math.min(
-              Math.min(this.scale.width, this.scale.height) /
-                6 /
-                window.devicePixelRatio,
-              150,
-            ),
-          )
+          .setFontSize(titleFontSize)
           .setOrigin(0.5, 0.5)
-          .setPosition(this.scale.width / 2, this.scale.height / 3)
-          .setScale(window.devicePixelRatio);
+          .setPosition(
+            this.scale.width / 2,
+            this.scale.height / 2 - titleFontSize,
+          );
       }
 
       if (this.score) {
         this.score
-          .setFontSize(
-            Math.min(
-              Math.min(this.scale.width, this.scale.height) /
-                2 /
-                window.devicePixelRatio,
-              160,
-            ),
-          )
+          .setFontSize(scoreFontSize)
           .setOrigin(0.5, 0.5)
-          .setPosition(this.scale.width / 2, this.scale.height / 2)
-          .setScale(window.devicePixelRatio);
+          .setPosition(this.scale.width / 2, this.scale.height / 2);
       }
     }
   }

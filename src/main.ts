@@ -135,7 +135,7 @@ async function start() {
     joinUrl.searchParams.set("id", connection.getId());
 
     runScene(InviteOpponentScene.key, {
-      joinUrl: joinUrl.toString().toUpperCase(),
+      joinUrl: joinUrl.toString(),
     });
 
     game.events.on(CONNECTION__JOIN_EVENT, (event: ConnectionJoinEvent) => {

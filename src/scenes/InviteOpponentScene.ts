@@ -32,6 +32,7 @@ export class InviteOpponentScene extends Phaser.Scene {
         color: { dark: "#415fcc" },
         width: qrCodeSize,
         margin: 1,
+        errorCorrectionLevel: "low",
       }).then((qrcode) => {
         this.textures.addBase64("qrcode", qrcode);
       });

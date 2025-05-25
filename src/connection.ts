@@ -17,6 +17,8 @@ import {
   GAME__START_EVENT,
 } from "./events.ts";
 
+const peerIdPrefix = "battlefield-";
+
 export class Connection {
   private peerId: string = "";
   private peer?: Peer;
@@ -30,7 +32,9 @@ export class Connection {
   ): Promise<Connection> {
     return new Promise((resolve) => {
       const connection = new Connection(eventEmitter);
-      connection.peer = new Peer({
+
+      const peerId = peerIdPrefix + generatePeerId(5).toUpperCase();
+      connection.peer = new Peer(peerId, {
         pingInterval: 1000,
       });
 
@@ -127,6 +131,7 @@ export class Connection {
   ): Promise<Connection> {
     return new Promise((resolve) => {
       const connection = new Connection(eventEmitter);
+
       connection.peer = new Peer();
 
       connection.peer.on("disconnected", () => connection.disconnect());
@@ -165,7 +170,7 @@ export class Connection {
           },
         );
 
-        const conn = connection.peer!.connect(hostId);
+        const conn = connection.peer!.connect(peerIdPrefix + hostId);
         conn.on("open", () => {
           resolve(connection);
         });
@@ -215,7 +220,7 @@ export class Connection {
   }
 
   getId(): string {
-    return this.peerId;
+    return this.peerId.replace(peerIdPrefix, "");
   }
 
   close() {
@@ -226,4 +231,17 @@ export class Connection {
     this.eventEmitter.emit(CONNECTION__DISCONNECT_EVENT);
     this.close();
   }
+}
+
+function generatePeerId(length: number) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
 }

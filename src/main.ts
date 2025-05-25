@@ -59,7 +59,7 @@ const playScene = new PlayScene(boardSize);
 const gameOverScene = new GameOverScene();
 
 const url = new URL(window.location.href);
-const hostId = url.searchParams.get("id") ?? "";
+const hostId = url.searchParams.get("id") ?? url.searchParams.get("ID") ?? "";
 const isHost = !hostId;
 
 const joinUrl = new URL(url.toString());
@@ -133,7 +133,10 @@ async function start() {
     ]);
 
     joinUrl.searchParams.set("id", connection.getId());
-    runScene(InviteOpponentScene.key, { joinUrl: joinUrl.toString() });
+
+    runScene(InviteOpponentScene.key, {
+      joinUrl: joinUrl.toString().toUpperCase(),
+    });
 
     game.events.on(CONNECTION__JOIN_EVENT, (event: ConnectionJoinEvent) => {
       const gameShipPlacementEvent: GameShipPlacementEvent = {
